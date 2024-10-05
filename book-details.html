@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Details</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Book Details</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home (Book Search)</a></li>
+                <li><a href="bookshelf.html">My Bookshelf</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div id="book-details"></div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            function getQueryParam(param) {
+                var urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(param);
+            }
+
+            var bookId = getQueryParam('id');
+
+            if (bookId) {
+                var apiUrl = `https://www.googleapis.com/books/v1/volumes/${bookId}`;
+
+                $.getJSON(apiUrl, function(data) {
+                    var book = data.volumeInfo;
+                    var title = book.title || "No title available!";
+                    var authors = book.authors ? book.authors.join(", ") : "No Author Availble!";
+                    var publisher = book.publisher || "No Publisher available!";
+                    var publishedDate = book.publishedDate || "No Date available!";
+                    var description = book.description || "No Description available!";
+                    var thumbnail = book.imageLinks ? book.imageLinks.thumbnail : 'https://via.placeholder.com/128x192?text=No+Image';
+
+                    $('#book-details').html(`
+                        <div class="book-detail">
+                            <img src="${thumbnail}" alt="Book cover">
+                            <h2>${title}</h2>
+                            <p><strong>Author(s):</strong> ${authors}</p>
+                            <p><strong>Publisher:</strong> ${publisher}</p>
+                            <p><strong>Published Date:</strong> ${publishedDate}</p>
+                            <p>${description}</p>
+                        </div>
+                    `);
+                }).fail(function() {
+                    $('#book-details').html("<p>Failed to load book details.</p>");
+                });
+            } else {
+                $('#book-details').html("<p>Couldn't find the book!</p>");
+            }
+        });
+    </script>
+</body>
+</html>

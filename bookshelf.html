@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookshelf - Google Books API</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Milestone 2 - My Bookshelf</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home (Book Search)</a></li>
+                <li><a href="bookshelf.html">My Bookshelf</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container" id="bookshelf-container"></div>
+
+    <script>
+        $(document).ready(function() {
+            var bookshelfApiUrl = 'https://www.googleapis.com/books/v1/users/114730329718311628938/bookshelves/1001/volumes';
+
+            $.getJSON(bookshelfApiUrl, function(data) {
+                $('#bookshelf-container').empty();
+
+                if (data.items && data.items.length > 0) {
+                    $.each(data.items, function(index, book) {
+                        var title = book.volumeInfo.title;
+                        var thumbnail = book.volumeInfo.imageLinks ? book.volumeInfo.imageLinks.thumbnail : 'https://via.placeholder.com/128x192?text=No+Image';
+
+                        $('#bookshelf-container').append(`
+                            <div class="book">
+                                <img src="${thumbnail}" alt="Book cover">
+                                <a href="book-details.html?id=${book.id}">${title}</a>
+                            </div>
+                        `);
+                    });
+                } else {
+                    $('#bookshelf-container').append("<p>No books found in this bookshelf.</p>");
+                }
+            }).fail(function() {
+                $('#bookshelf-container').append("<p>Failed to load bookshelf data.</p>");
+            });
+        });
+    </script>
+</body>
+</html>

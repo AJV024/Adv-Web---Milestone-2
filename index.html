@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Search - Google Books API</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Milestone 2: Book Search </h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home (Book Search)</a></li>
+                <li><a href="bookshelf.html">My Bookshelf</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="search-box">
+            <input type="text" id="search-term" placeholder="Enter search term">
+            <button id="search-button">Search Books</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#search-button').click(function() {
+                var searchTerm = $('#search-term').val().trim();
+                
+                if (searchTerm === "") {
+                    alert("What are we searching for today?");
+                    return;
+                }
+
+                var apiUrl = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchTerm)}&maxResults=20`;
+
+                $.getJSON(apiUrl, function(data) {
+                    $('#results').empty();
+                    
+                    if (data.items && data.items.length > 0) {
+                        $.each(data.items, function(index, book) {
+                            var title = book.volumeInfo.title || "No title available";
+                            var thumbnail = book.volumeInfo.imageLinks ? book.volumeInfo.imageLinks.thumbnail : 'https://via.placeholder.com/128x192?text=No+Image';
+                            /* I used this stack page for the book thumbnail: https://stackoverflow.com/questions/69075710/getting-a-thumbnail-image-from-google-books-api-into-a-python-variable */
+                            $('#results').append(`
+                                <div class="book">
+                                    <img src="${thumbnail}" alt="Book cover">
+                                    <a href="book-details.html?id=${book.id}">${title}</a>
+                                </div>
+                            `);
+                        });
+                    } else {
+                        $('#results').append("<p>Please try again.</p>");
+                    }
+                }).fail(function() {
+                    $('#results').html("<p>Please wait and try again. The API may not have loaded yet!.</p>");
+                });
+            });
+        });
+    </script>
+</body>
+</html>
